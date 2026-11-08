@@ -87,7 +87,9 @@ jobs:
     needs: [yaml-lint, unit-test, browser-test]
     permissions:
       contents: read
-      pages: read
+      # GitHub validates the permission ceiling even when the deploy job is skipped.
+      pages: write
+      id-token: write
     uses: ./.github/workflows/build.yml
     with:
       project-directory: demo
