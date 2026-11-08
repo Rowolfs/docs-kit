@@ -71,6 +71,15 @@ class ConfigContractTests(ProjectFixture):
         self.write_config('[site]\nname = "Minimal"\n')
         self.assertEqual(build_site.load_config(self.project), {"name": "Minimal"})
 
+    def test_reading_speed_is_optional_and_accepts_only_bounded_integers(self):
+        self.write_config('[site]\nname = "Test"\nreading_words_per_minute = 250\n')
+        self.assertEqual(build_site.load_config(self.project)["reading_words_per_minute"], 250)
+        for value in ['true', '"200"', '0', '39', '1001', '200.5']:
+            with self.subTest(value=value):
+                self.write_config(f'[site]\nname = "Test"\nreading_words_per_minute = {value}\n')
+                with self.assertRaises(ValueError):
+                    build_site.load_config(self.project)
+
     def test_invalid_config_shapes_and_types_are_rejected(self):
         invalid = [
             '', 'site = "text"\n', '[other]\nname = "Wrong table"\n',

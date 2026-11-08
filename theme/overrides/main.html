@@ -3,3 +3,16 @@
   {{ super() }}
   <script src="{{ '_docs_kit/mermaid-12.3.0.min.js' | url }}"></script>
 {% endblock %}
+{% block content %}
+  {% if page.meta.status %}
+    <div class="page-status" data-status="{{ page.meta.status | e }}">
+      <span class="page-status__label">
+        {% if page.meta.status == "implemented" %}Реализовано{% elif page.meta.status == "planned" %}Запланировано{% elif page.meta.status == "deprecated" %}Устарело{% else %}{{ page.meta.status | e }}{% endif %}
+      </span>
+      {% if page.meta.verified_commit %}
+        <span class="page-status__revision">Сверено с кодом: <code>{{ page.meta.verified_commit | e }}</code></span>
+      {% endif %}
+    </div>
+  {% endif %}
+  {{ super() }}
+{% endblock %}

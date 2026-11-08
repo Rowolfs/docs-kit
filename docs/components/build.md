@@ -2,13 +2,15 @@
 id: build
 type: component
 status: implemented
-verified_commit: 8f9f4dd603f414865cf1ccc0887a3a29d2493535
+verified_commit: 8dff56d2b41af6f6df99bcd1638fab72d39dcd37
 ---
 # Сборка документации
 
 <div class="lvl lvl-1" markdown>
 
-## Обзор
+<span id="_2"></span>
+
+## Кратко {#component-overview}
 
 Сборщик превращает конфигурацию и Markdown проекта в статический сайт.
 Он используется одинаково локально и в GitHub Actions, не меняя исходные
@@ -20,7 +22,9 @@ verified_commit: 8f9f4dd603f414865cf1ccc0887a3a29d2493535
 
 <div class="lvl lvl-2" markdown="1">
 
-## Как устроено
+<span id="_3"></span>
+
+## Подробно {#component-flow}
 
 1. Прочитать `docs-kit.toml` и проверить расположение входных и выходных файлов.
 2. Скопировать только `docs/` и ассеты движка во временный проект.
@@ -42,7 +46,9 @@ verified_commit: 8f9f4dd603f414865cf1ccc0887a3a29d2493535
 
 <div class="lvl lvl-3" markdown="1">
 
-## Детали
+<span id="_4"></span>
+
+## Полностью {#component-details}
 
 Исходники:
 [build_site.py](https://github.com/Rowolfs/docs-kit/blob/main/scripts/build_site.py),

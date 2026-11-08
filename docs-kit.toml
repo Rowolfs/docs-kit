@@ -1,11 +1,14 @@
 [site]
-name = "docs-kit"
-description = "Статическая документация проектов, написанных ИИ-агентами"
+name = "Quokki"
+description = "Документация проектов, написанных ИИ-агентами"
 nav = [
   { "Главная" = "index.md" },
   { "Архитектура" = "architecture/containers.md" },
   { "Сборка" = "components/build.md" },
   { "Подключение" = "connect.md" },
+  { "Практики документации" = "documentation-standard.md" },
+  { "Исследование UX" = "research/documentation-ux.md" },
   { "Фаза 0" = "phase-0.md" },
   { "Фаза 1" = "phase-1.md" },
+  { "Фаза 2" = "phase-2.md" },
 ]
