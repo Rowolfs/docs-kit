@@ -63,12 +63,12 @@ concurrency:
 
 jobs:
   docs:
-    uses: Rowolfs/docs-kit/.github/workflows/build.yml@v0.2.0-alpha.1
+    uses: Rowolfs/docs-kit/.github/workflows/build.yml@v0.2.0-alpha.2
     with:
       deploy: ${{ github.event_name != 'pull_request' && github.ref == 'refs/heads/main' }}
 ```
 
-Это экспериментальный prerelease `v0.2.0-alpha.1`, не стабильный `v1`. Для максимальной
+Это экспериментальный prerelease `v0.2.0-alpha.2`, не стабильный `v1`. Для максимальной
 фиксации вместо тега можно указать полный SHA. Существующие релизные теги
 не передвигаются; изменение движка публикуется новой версией. Semver до 1.0
 не означает стабильность всего будущего интерфейса.

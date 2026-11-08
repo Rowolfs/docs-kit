@@ -92,6 +92,7 @@ def stage_project(project, stage, site, site_url, asset):
     # Only the renderer boundary uses Zensical's configuration format.
     import yaml
 
+    asset_version = (ENGINE / "VERSION").read_text().strip()
     config = {
         "site_name": site["name"], "site_description": site.get("description", ""),
         "site_url": site_url, "docs_dir": "docs", "site_dir": "site",
@@ -105,8 +106,9 @@ def stage_project(project, stage, site, site_url, asset):
                  "toggle": {"icon": "lucide/sun", "name": "Светлая тема"}},
             ],
         },
-        "extra_css": ["_docs_kit/levels.css", "_docs_kit/site.css"],
-        "extra_javascript": ["_docs_kit/levels.js"],
+        "extra_css": [f"_docs_kit/{name}?v={asset_version}"
+                      for name in ("levels.css", "site.css")],
+        "extra_javascript": [f"_docs_kit/levels.js?v={asset_version}"],
         "markdown_extensions": [
             "md_in_html", "attr_list", "tables", {"toc": {"permalink": True}},
             {"pymdownx.superfences": {"custom_fences": [{
