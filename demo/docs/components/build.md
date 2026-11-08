@@ -2,6 +2,7 @@
 id: build
 type: component
 status: implemented
+verified_commit: 8f9f4dd603f414865cf1ccc0887a3a29d2493535
 ---
 # Сборка документации
 
