@@ -1,0 +1,7 @@
+[site]
+name = "docs-kit demo"
+description = "Минимальный проект документации, подключающий внешний движок docs-kit."
+nav = [
+  { "Главная" = "index.md" },
+  { "Сборка" = "components/build.md" },
+]

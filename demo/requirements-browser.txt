@@ -1,0 +1,2 @@
+# Browser smoke checks only; not a site-build dependency.
+playwright==1.56.0

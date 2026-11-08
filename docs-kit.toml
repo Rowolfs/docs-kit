@@ -1,0 +1,11 @@
+[site]
+name = "docs-kit"
+description = "Статическая документация проектов, написанных ИИ-агентами"
+nav = [
+  { "Главная" = "index.md" },
+  { "Архитектура" = "architecture/containers.md" },
+  { "Сборка" = "components/build.md" },
+  { "Подключение" = "connect.md" },
+  { "Фаза 0" = "phase-0.md" },
+  { "Фаза 1" = "phase-1.md" },
+]
