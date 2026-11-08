@@ -38,6 +38,7 @@ jobs:
       pages: read
     outputs:
       engine-sha: ${{ steps.engine.outputs.sha }}
+      source-sha: ${{ steps.source.outputs.sha }}
     steps:
       - name: Resolve the reusable workflow's own revision
         id: engine
@@ -61,6 +62,9 @@ jobs:
           ref: ${{ inputs.source-ref || github.sha }}
           path: project
           persist-credentials: false
+      - name: Record the documented source revision
+        id: source
+        run: echo "sha=$(git -C project rev-parse HEAD)" >> "$GITHUB_OUTPUT"
       - name: Check out the exact engine revision
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
@@ -111,6 +115,7 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     permissions:
+      contents: read
       pages: write
       id-token: write
     environment:
@@ -122,6 +127,27 @@ jobs:
       group: docs-kit-pages-deploy
       cancel-in-progress: false
     steps:
+      - name: Skip artifacts superseded by a newer main commit
+        id: current
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SOURCE_SHA: ${{ needs.build.outputs.source-sha }}
+        run: |
+          python - <<'PY'
+          import json, os, urllib.request
+          url = f"{os.environ['GITHUB_API_URL']}/repos/{os.environ['GITHUB_REPOSITORY']}/git/ref/heads/main"
+          request = urllib.request.Request(url, headers={
+              'Authorization': 'Bearer ' + os.environ['GH_TOKEN'],
+              'Accept': 'application/vnd.github+json',
+          })
+          with urllib.request.urlopen(request, timeout=30) as response:
+              current = json.load(response)['object']['sha']
+          deploy = current == os.environ['SOURCE_SHA']
+          with open(os.environ['GITHUB_OUTPUT'], 'a') as output:
+              output.write(f'deploy={str(deploy).lower()}\n')
+          print('Deploy current main' if deploy else 'Skip outdated documentation artifact')
+          PY
       - name: Publish the built artifact to GitHub Pages
+        if: steps.current.outputs.deploy == 'true'
         id: deployment
         uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346  # v5.0.1
