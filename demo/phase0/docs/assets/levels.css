@@ -1,0 +1,14 @@
+/* Minimal experiment controls, not the final docs-kit theme. */
+[hidden] { display: none !important; }
+.level-control { display: flex; flex-wrap: wrap; gap: .5rem; margin-block: 1rem; }
+.level-control button {
+  padding: .5rem .8rem;
+  border: 1px solid var(--md-default-fg-color--light);
+  border-radius: .3rem;
+  cursor: pointer;
+}
+.level-control button[aria-pressed="true"] {
+  background: var(--md-primary-fg-color);
+  color: var(--md-primary-bg-color);
+}
+.level-control button:focus-visible { outline: 3px solid var(--md-accent-fg-color); }

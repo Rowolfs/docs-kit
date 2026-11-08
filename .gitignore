@@ -1,0 +1,8 @@
+.venv/
+__pycache__/
+.cache/
+build/
+site/
+demo/phase0/site/
+demo/phase0/docs/assets/vendor/
+demo/phase0/docs/report.md

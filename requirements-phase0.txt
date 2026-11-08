@@ -1,0 +1,2 @@
+# Exact generator version for the phase 0 experiment.
+zensical==0.1.0

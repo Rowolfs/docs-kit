@@ -1,0 +1,36 @@
+[project]
+site_name = "docs-kit · эксперимент фазы 0"
+site_url = "http://127.0.0.1:8765/docs-kit/"
+docs_dir = "docs"
+site_dir = "site/docs-kit"
+nav = [
+  { "Проверка гипотез" = "index.md" },
+  { "Компонент эксперимента" = "components/probe.md" },
+  { "Отчёт фазы 0" = "report.md" },
+]
+extra_css = ["assets/levels.css"]
+extra_javascript = ["assets/levels.js"]
+
+[project.theme]
+custom_dir = "overrides"
+language = "ru"
+features = ["navigation.instant"]
+font = false
+
+[[project.theme.palette]]
+scheme = "default"
+toggle.icon = "lucide/moon"
+toggle.name = "Тёмная тема"
+
+[[project.theme.palette]]
+scheme = "slate"
+toggle.icon = "lucide/sun"
+toggle.name = "Светлая тема"
+
+[project.markdown_extensions]
+md_in_html = {}
+tables = {}
+toc.permalink = true
+pymdownx.superfences.custom_fences = [
+  { name = "mermaid", class = "mermaid", format = "pymdownx.superfences.fence_code_format" },
+]
