@@ -1,0 +1,127 @@
+name: Build documentation
+
+on:
+  workflow_call:
+    inputs:
+      project-directory:
+        description: Directory containing docs-kit.toml and docs/
+        type: string
+        default: '.'
+      source-ref:
+        description: Caller revision to document; defaults to the triggering revision
+        type: string
+        default: ''
+      site-url:
+        description: Optional absolute site URL; otherwise use Pages metadata or repository URL
+        type: string
+        default: ''
+      deploy:
+        description: Publish to Pages; allowed only from main outside pull requests
+        type: boolean
+        default: false
+    outputs:
+      page-url:
+        description: Published GitHub Pages URL, empty for build-only runs
+        value: ${{ jobs.deploy.outputs.page-url }}
+      engine-sha:
+        description: Exact engine revision used by this workflow
+        value: ${{ jobs.build.outputs.engine-sha }}
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: read
+    outputs:
+      engine-sha: ${{ steps.engine.outputs.sha }}
+    steps:
+      - name: Resolve the reusable workflow's own revision
+        id: engine
+        env:
+          JOB_CONTEXT: ${{ toJSON(job) }}
+        run: |
+          python - <<'PY'
+          import json, os, re
+          job = json.loads(os.environ['JOB_CONTEXT'])
+          sha = job.get('workflow_sha', '')
+          repository = job.get('workflow_repository', '')
+          if not re.fullmatch(r'[0-9a-f]{40}', sha) or not re.fullmatch(r'[\w.-]+/[\w.-]+', repository):
+              raise SystemExit('Missing workflow identity: docs-kit requires GitHub.com workflow_sha support')
+          with open(os.environ['GITHUB_OUTPUT'], 'a') as output:
+              output.write(f'sha={sha}\nrepository={repository}\n')
+          print(f'Engine: {repository}@{sha}')
+          PY
+      - name: Check out the project
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          ref: ${{ inputs.source-ref || github.sha }}
+          path: project
+          persist-credentials: false
+      - name: Check out the exact engine revision
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          repository: ${{ steps.engine.outputs.repository }}
+          ref: ${{ steps.engine.outputs.sha }}
+          path: engine
+          persist-credentials: false
+      - name: Set up Python
+        uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0  # v7.1.0
+        with:
+          python-version: '3.13'
+          cache: pip
+          cache-dependency-path: engine/requirements.lock
+      - name: Install the engine dependencies
+        run: python -m pip install -r engine/requirements.lock
+      - name: Read GitHub Pages configuration
+        if: inputs.deploy
+        id: pages
+        uses: actions/configure-pages@45bfe0192ca1faeb007ade9deae92b16b8254a0d  # v6.0.0
+      - name: Build the static site
+        env:
+          PROJECT_DIRECTORY: ${{ inputs.project-directory }}
+          SITE_URL: ${{ inputs.site-url || steps.pages.outputs.base_url }}
+        run: |
+          python - <<'PY'
+          import os, pathlib, subprocess, sys
+          root = pathlib.Path('project').resolve()
+          project = (root / os.environ['PROJECT_DIRECTORY']).resolve()
+          if not project.is_relative_to(root):
+              raise SystemExit('project-directory must be inside the caller repository')
+          owner, name = os.environ['GITHUB_REPOSITORY'].split('/')
+          default = f'https://{owner.lower()}.github.io/'
+          if name.lower() != f'{owner.lower()}.github.io':
+              default += name + '/'
+          url = (os.environ['SITE_URL'] or default).rstrip('/') + '/'
+          subprocess.run([sys.executable, 'engine/scripts/build_site.py',
+                          '--project-dir', str(project),
+                          '--output-dir', os.environ['RUNNER_TEMP'] + '/docs-kit-site',
+                          '--site-url', url], check=True)
+          PY
+      - name: Upload the Pages artifact
+        uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9  # v5.0.0
+        with:
+          path: ${{ runner.temp }}/docs-kit-site
+
+  deploy:
+    if: inputs.deploy && github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    outputs:
+      page-url: ${{ steps.deployment.outputs.page_url }}
+    concurrency:
+      group: docs-kit-pages-deploy
+      cancel-in-progress: false
+    steps:
+      - name: Publish the built artifact to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346  # v5.0.1
