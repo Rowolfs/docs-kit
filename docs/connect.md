@@ -1,7 +1,7 @@
 ---
 id: connect
 type: guide
-status: planned
+status: implemented
 ---
 # Подключение проекта
 
