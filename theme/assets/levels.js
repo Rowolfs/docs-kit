@@ -134,6 +134,11 @@
     reveal(new URL(location.href));
   };
   const navigate = () => reveal(new URL(location.href));
+  // Zensical can replace navigation after the article has mounted.
+  // Observe children only: setting hidden attributes must not retrigger us.
+  new MutationObserver(() => {
+    if (state.article?.isConnected) filterToc();
+  }).observe(document.body, { childList: true, subtree: true });
   window.addEventListener('hashchange', navigate);
   window.addEventListener('popstate', navigate);
   document.addEventListener('click', (event) => {

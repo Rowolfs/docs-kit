@@ -171,6 +171,7 @@ def main():
         try:
             page.goto(base_url, wait_until='networkidle')
             expect(page.locator('article h1')).to_be_visible()
+            assert page.locator('script[src*="_docs_kit/levels.js?v="]').count() == 1
             expect(page.locator('.md-header__topic').first).to_contain_text('Quokki')
             home_title = page.locator('article h1').inner_text()
             expect(slider(page)).to_be_visible()
@@ -182,6 +183,16 @@ def main():
             detail_toc = page.locator('.md-sidebar--secondary a[href$="#reader-details"]').first
             expect(detail_toc).to_have_count(1)
             expect(detail_toc).to_be_hidden()
+            page.evaluate('''() => document.querySelectorAll('[data-md-component="toc"]').forEach(list => {
+              const replacement = list.cloneNode(true);
+              replacement.querySelectorAll('[hidden]').forEach(node => node.removeAttribute('hidden'));
+              list.replaceWith(replacement);
+            })''')
+            page.wait_for_function('''() => [...document.querySelectorAll(
+              '[data-md-component="toc"] a[href$="#documentation-flow"], [data-md-component="toc"] a[href$="#reader-details"]'
+            )].every(link => link.closest('li').hidden)''')
+            footer = page.locator('.md-copyright').bounding_box()
+            assert footer['x'] < 40, footer
             result['checks'].append('Brief/Detailed/Full slider, static block metrics and visible-content totals agree')
 
             control = slider(page)
