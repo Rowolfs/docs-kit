@@ -12,6 +12,11 @@ import tomllib
 from urllib.parse import urlparse
 from urllib.request import urlopen
 
+try:
+    from .reading import DEFAULT_WORDS_PER_MINUTE, annotate_html, validate_speed
+except ImportError:  # Direct invocation: python scripts/build_site.py
+    from reading import DEFAULT_WORDS_PER_MINUTE, annotate_html, validate_speed
+
 ENGINE = Path(__file__).resolve().parents[1]
 MERMAID_URL = "https://unpkg.com/mermaid@12.3.0/dist/mermaid.min.js"
 MERMAID_SHA256 = "336df803d87a38b70a01e736e666c8f7601d2ce42f5e47c8fafe5d721074b9a3"
@@ -24,12 +29,13 @@ def load_config(project):
     if set(config) != {"site"} or not isinstance(config["site"], dict):
         raise ValueError("docs-kit.toml must contain a [site] table")
     site = config["site"]
-    if set(site) - {"name", "description", "nav"}:
-        raise ValueError("Unknown site option; supported: name, description, nav")
+    if set(site) - {"name", "description", "nav", "reading_words_per_minute"}:
+        raise ValueError("Unknown site option; supported: name, description, nav, reading_words_per_minute")
     if not isinstance(site.get("name"), str) or not site["name"].strip():
         raise ValueError("site.name must be a nonempty string")
     if "description" in site and not isinstance(site["description"], str):
         raise ValueError("site.description must be a string")
+    validate_speed(site.get("reading_words_per_minute", DEFAULT_WORDS_PER_MINUTE))
     nav = site.get("nav")
     if nav is not None:
         if not isinstance(nav, list) or not nav:
@@ -91,16 +97,18 @@ def stage_project(project, stage, site, site_url, asset):
         "site_url": site_url, "docs_dir": "docs", "site_dir": "site",
         "theme": {
             "name": "material", "custom_dir": "overrides", "language": "ru", "font": False,
-            "features": ["navigation.instant"],
+            "features": ["navigation.instant", "search.highlight"],
             "palette": [
-                {"scheme": "default", "toggle": {"icon": "lucide/moon", "name": "Тёмная тема"}},
-                {"scheme": "slate", "toggle": {"icon": "lucide/sun", "name": "Светлая тема"}},
+                {"scheme": "default", "media": "(prefers-color-scheme: light)",
+                 "toggle": {"icon": "lucide/moon", "name": "Тёмная тема"}},
+                {"scheme": "slate", "media": "(prefers-color-scheme: dark)",
+                 "toggle": {"icon": "lucide/sun", "name": "Светлая тема"}},
             ],
         },
-        "extra_css": ["_docs_kit/levels.css"],
+        "extra_css": ["_docs_kit/levels.css", "_docs_kit/site.css"],
         "extra_javascript": ["_docs_kit/levels.js"],
         "markdown_extensions": [
-            "md_in_html", "tables", {"toc": {"permalink": True}},
+            "md_in_html", "attr_list", "tables", {"toc": {"permalink": True}},
             {"pymdownx.superfences": {"custom_fences": [{
                 "name": "mermaid", "class": "mermaid",
                 "format": "!!python/name:pymdownx.superfences.fence_code_format",
@@ -139,6 +147,9 @@ def build(project, output, site_url, cache):
             cwd=stage, check=True,
         )
         generated = stage / "site"
+        speed = site.get("reading_words_per_minute", DEFAULT_WORDS_PER_MINUTE)
+        for page in generated.rglob("*.html"):
+            page.write_text(annotate_html(page.read_text(encoding="utf-8"), speed), encoding="utf-8")
         (generated / ".nojekyll").touch()
         provenance = {
             "engine_version": (ENGINE / "VERSION").read_text().strip(),
