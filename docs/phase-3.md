@@ -55,6 +55,18 @@ checkout и запускает Python. Повторный вызов сохра�
 Ubuntu 26, которую закреплённый Playwright не поддерживает. Для браузерного
 job закреплён Ubuntu 24.04; версию Playwright не меняли.
 
+
+Публичный Bash/wget-загрузчик релиза проверен в отдельном Git-репозитории:
+создал заготовки, сохранил существующие правила AGENTS.md, при повторном запуске
+сохранил написанный текст и не изменил HEAD. Команда `--model changed` через
+тот же загрузчик определила новый файл и затронутый компонент.
+
+Подтверждения: [PR #5](https://github.com/Rowolfs/docs-kit/pull/5),
+[успешный PR CI](https://github.com/Rowolfs/docs-kit/actions/runs/44501089364),
+[CI на main](https://github.com/Rowolfs/docs-kit/actions/runs/44501529261),
+[Pages workflow](https://github.com/Rowolfs/docs-kit/actions/runs/44501840093),
+[релиз v0.3.0-alpha.1](https://github.com/Rowolfs/docs-kit/releases/tag/v0.3.0-alpha.1).
+
 Ограничения: секреты исключаются по типовым именам, это не сканирование
 содержимого. Нельзя относить файл сразу к двум компонентам. Поддержаны
 GitHub HTTPS/SSH origin и ветка публикации `main`; Pages нужно включить отдельно.
