@@ -89,6 +89,28 @@ def stage_project(project, stage, site, site_url, asset):
     shutil.copytree(ENGINE / "theme/assets", stage / "docs/_docs_kit")
     shutil.copy2(asset, stage / "docs/_docs_kit/mermaid-12.3.0.min.js")
     shutil.copytree(ENGINE / "theme/overrides", stage / "overrides")
+    model_context = None
+    if (project / "components.yaml").is_file():
+        try:
+            from .docs_model import generate, records_for
+            from .model_site import render_map
+        except ImportError:
+            from docs_model import generate, records_for
+            from model_site import render_map
+        generated_docs = stage / "docs/_generated"
+        if generated_docs.exists():
+            raise ValueError("docs/_generated is reserved for generated model pages")
+        manifest = generate(project, project / "build/model")
+        registry, records, context = records_for(project)
+        paths = {record['code']['path'] for record in records
+                 if record.get('code') and record['kind'] == 'file'}
+        model_context = (paths, context)
+        generated_docs.mkdir()
+        (generated_docs / "code-map.md").write_text(render_map(registry, records, context), encoding="utf-8")
+        for relative in manifest['files']:
+            target = stage / "docs/_docs_kit/model" / relative
+            target.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copyfile(project / "build/model" / relative, target)
     # Only the renderer boundary uses Zensical's configuration format.
     import yaml
 
@@ -118,12 +140,15 @@ def stage_project(project, stage, site, site_url, asset):
         ],
     }
     if "nav" in site:
-        config["nav"] = site["nav"]
+        config["nav"] = list(site["nav"])
+        if model_context:
+            config["nav"].append({"Карта кода": "_generated/code-map.md"})
     # Zensical's mkdocs-compatible YAML expects a callable tag, not a quoted string.
     encoded = yaml.safe_dump(config, allow_unicode=True, sort_keys=False)
     encoded = encoded.replace("'!!python/name:pymdownx.superfences.fence_code_format'",
                               "!!python/name:pymdownx.superfences.fence_code_format")
     (stage / "mkdocs.yml").write_text(encoded, encoding="utf-8")
+    return model_context
 
 
 def build(project, output, site_url, cache):
@@ -143,7 +168,7 @@ def build(project, output, site_url, cache):
     asset = mermaid_asset(cache)
     with tempfile.TemporaryDirectory(prefix="docs-kit-") as temp:
         stage = Path(temp)
-        stage_project(project, stage, site, site_url, asset)
+        model_context = stage_project(project, stage, site, site_url, asset)
         subprocess.run(
             [sys.executable, "-m", "zensical", "build", "--strict", "-f", str(stage / "mkdocs.yml")],
             cwd=stage, check=True,
@@ -151,7 +176,14 @@ def build(project, output, site_url, cache):
         generated = stage / "site"
         speed = site.get("reading_words_per_minute", DEFAULT_WORDS_PER_MINUTE)
         for page in generated.rglob("*.html"):
-            page.write_text(annotate_html(page.read_text(encoding="utf-8"), speed), encoding="utf-8")
+            source = page.read_text(encoding="utf-8")
+            if model_context:
+                try:
+                    from .model_site import resolve_links
+                except ImportError:
+                    from model_site import resolve_links
+                source = resolve_links(source, *model_context)
+            page.write_text(annotate_html(source, speed), encoding="utf-8")
         (generated / ".nojekyll").touch()
         provenance = {
             "engine_version": (ENGINE / "VERSION").read_text().strip(),

@@ -3,6 +3,7 @@
 import argparse
 import json
 import math
+import re
 from pathlib import Path
 from urllib.parse import urljoin, urlsplit
 
@@ -333,6 +334,28 @@ def main():
             result['checks'].append('System light/dark themes, explicit theme persistence, visible slider focus and 320/390px layout work')
 
             check_fallbacks(browser, base_url, result)
+            page.goto(urljoin(base_url, '_generated/code-map/'), wait_until='networkidle')
+            choose(page, 3)
+            code_link = page.locator('article a[href*="/blob/"]').first
+            expect(code_link).to_have_attribute('href', re.compile(r'^https://github\.com/Rowolfs/docs-kit/blob/[0-9a-f]{40}/.+'))
+            response = context.request.get(urljoin(base_url, '_docs_kit/model/index.json'))
+            assert response.ok and response.json()['schema_version'] == 1
+            assert len(response.body()) <= 30 * 1024
+            page.wait_for_function('''() => window.__docsKitRoots.some(root =>
+              root.host.isConnected && root.querySelector('a .node'))''')
+            target = page.evaluate('''() => {
+              const node = window.__docsKitRoots.filter(root => root.host.isConnected)
+                .flatMap(root => [...root.querySelectorAll('a .node')])[0];
+              node.scrollIntoView();
+              const rect = node.getBoundingClientRect();
+              return {x: rect.x + rect.width / 2, y: rect.y + rect.height / 2,
+                href: node.closest('a').getAttribute('href')};
+            }''')
+            destination = urljoin(page.url, target.pop('href'))
+            page.mouse.click(**target)
+            page.wait_for_url(destination)
+            expect(page.locator('article h1')).to_be_visible()
+            result['checks'].append('Generated map and bounded JSON model are published; file links pin an exact source commit')
             for key in ('page_errors', 'console_errors', 'http_errors', 'failed_requests', 'external_requests'):
                 assert not result[key], f'{key}: {result[key]}'
             result['checks'].append('No page, console, HTTP or network errors, missing assets or external asset requests')

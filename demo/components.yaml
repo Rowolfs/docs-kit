@@ -1,0 +1,6 @@
+components:
+  browser:
+    title: Браузерная проверка
+    paths: [check_browser.py, requirements-browser.txt]
+    depends_on: []
+    page: docs/components/browser.md
