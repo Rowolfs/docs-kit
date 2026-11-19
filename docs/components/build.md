@@ -2,7 +2,7 @@
 id: build
 type: component
 status: implemented
-verified_commit: 8dff56d2b41af6f6df99bcd1638fab72d39dcd37
+verified_commit: e02b1a7abc80b61eb5c7ea946608502574cde042
 ---
 # Сборка документации
 
@@ -34,6 +34,10 @@ verified_commit: 8dff56d2b41af6f6df99bcd1638fab72d39dcd37
 5. Перенести успешный результат в выходной каталог и записать сведения о версии
    движка и исходном коммите.
 
+При наличии `components.yaml` перед рендерингом генерируются модель и карта.
+После рендеринга ссылки `file:` разрешаются в GitHub URL с SHA; метрики чтения
+добавляются в HTML. Публикуются только JSON-файлы из манифеста генератора.
+
 В CI reusable workflow отдельно получает проект и собственные исходники.
 Для версии движка используются `job.workflow_repository` и `job.workflow_sha`,
 относящиеся к вызываемому workflow. Значение `github.sha` используется
@@ -51,9 +55,9 @@ verified_commit: 8dff56d2b41af6f6df99bcd1638fab72d39dcd37
 ## Полностью {#component-details}
 
 Исходники:
-[build_site.py](https://github.com/Rowolfs/docs-kit/blob/main/scripts/build_site.py),
-[build.yml](https://github.com/Rowolfs/docs-kit/blob/main/.github/workflows/build.yml).
-Постоянные ссылки с хэшем будут генерироваться моделью в фазе 3.
+[build_site.py](file:scripts/build_site.py),
+[build.yml](file:.github/workflows/build.yml).
+Ссылки с хэшем генерируются при сборке по модели.
 
 Каталог `_docs_kit` зарезервирован под ассеты движка. Сборщик не поддерживает
 символические ссылки внутри `docs/` и не заменяет произвольный существующий

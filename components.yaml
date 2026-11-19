@@ -1,0 +1,16 @@
+components:
+  build:
+    title: Сборка и интерфейс
+    paths: [scripts/build_site.py, scripts/reading.py, scripts/model_site.py, 'theme/**']
+    depends_on: [model]
+    page: docs/components/build.md
+  model:
+    title: Модель проекта
+    paths: [scripts/docs_model.py]
+    depends_on: []
+    page: docs/components/model.md
+  installer:
+    title: Установка в репозиторий
+    paths: [install.sh, scripts/install.py]
+    depends_on: [model]
+    page: docs/components/installer.md
