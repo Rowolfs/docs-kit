@@ -260,7 +260,7 @@ def changed(project, base='HEAD'):
     if base == 'HEAD' and head_commit(project) is None:
         names = list_files(project)
     else:
-        paths = git(project, 'diff', '--name-only', '--no-renames', '-z', base, '--').split(b'\0')
+        paths = git(project, 'diff', '--relative', '--name-only', '--no-renames', '-z', base, '--', '.').split(b'\0')
         paths += git(project, 'ls-files', '--others', '--exclude-standard', '-z').split(b'\0')
         names = sorted({path.decode('utf-8') for path in paths if path and included(path.decode('utf-8'))})
     return {'base': base, 'files': names, 'components': sorted({key for path in names for key in matching_components(registry, path)})}

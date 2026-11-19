@@ -71,6 +71,12 @@ class ModelTests(unittest.TestCase):
         self.assertEqual(model.list_files(project), ['components.yaml', 'src/a.py'])
         self.assertIn('/demo/src/a.py', model.code_url(project, 'src/a.py'))
         self.assertEqual(model.source_metadata(project)['committed_paths'], ['components.yaml', 'src/a.py'])
+        self.write('src/api.py', 'outside demo change')
+        self.write('demo/src/a.py', 'inside demo change')
+        self.write('demo/src/new.py', 'inside demo untracked')
+        difference = model.changed(project)
+        self.assertEqual(difference['files'], ['src/a.py', 'src/new.py'])
+        self.assertEqual(difference['components'], ['api'])
 
     def test_unborn_repository_can_build_and_report_changed_files(self):
         self.run_git('symbolic-ref', 'HEAD', 'refs/heads/unborn')
