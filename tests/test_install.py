@@ -8,7 +8,7 @@ from unittest.mock import patch
 
 import yaml
 
-from scripts.install import END, START, install
+from scripts.install import END, START, VERSION, install
 
 
 class InstallerTests(unittest.TestCase):
@@ -42,14 +42,14 @@ class InstallerTests(unittest.TestCase):
         self.assertIn("Описание пока не написано", page)
         self.assertIn('class="lvl lvl-3"', page)
         self.assertTrue((self.root / "build/model/index.json").is_file())
-        self.assertIn("build.yml@v0.3.0-alpha.1", (self.root / ".github/workflows/docs.yml").read_text())
+        self.assertIn(f"build.yml@{VERSION}", (self.root / ".github/workflows/docs.yml").read_text())
         self.assertEqual(self.git("rev-parse", "HEAD"), head)
         self.assertNotIn(b"build/model/", self.git("ls-files", "--others", "--exclude-standard"))
 
     def test_rerun_preserves_written_pages_config_and_existing_agent_instructions(self):
         agents = self.root / "AGENTS.md"
         agents.write_text("# Existing rules\nKeep this exact text.\n")
-        install(self.root)
+        install(self.root, engine_version="v0.3.0-alpha.1")
         page = self.root / "docs/components/src.md"
         page.write_text(page.read_text() + "\nAn explanation written by the agent.\n")
         snapshots = {str(path.relative_to(self.root)): path.read_bytes() for path in self.root.rglob("*")
