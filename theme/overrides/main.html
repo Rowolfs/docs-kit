@@ -2,6 +2,9 @@
 {% block extrahead %}
   {{ super() }}
   <script src="{{ '_docs_kit/mermaid-12.3.0.min.js' | url }}"></script>
+  {% if config.extra.quokki_map %}
+  <script src="{{ '_docs_kit/cytoscape-3.35.0.min.js' | url }}"></script>
+  {% endif %}
 {% endblock %}
 {% block content %}
   {% if page.meta.status %}

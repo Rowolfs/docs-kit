@@ -17,7 +17,9 @@ def render_map(registry, records, context):
     def safe(value):
         return html.escape(str(value)).replace('|', '&#124;').replace('\n', ' ').replace('[', '&#91;').replace(']', '&#93;')
     lines = ['---', 'id: generated-code-map', 'type: reference', 'status: implemented', '---',
-             '# Карта проекта', '', '<div class="lvl lvl-1" markdown="1">', '', '## Кратко', '',
+             '# Карта проекта', '',
+             '<div class="project-map" data-project-map aria-label="Интерактивная карта проекта"></div>', '',
+             '<div class="lvl lvl-1" markdown="1">', '', '## Кратко', '',
              'Эта страница генерируется из реестра компонентов и списка файлов при сборке.',
              'Назначение кода и зависимости из импортов автоматически не определяются.',
              'Незакоммиченные файлы показаны без ссылки на GitHub.', '', '</div>', '',

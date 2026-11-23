@@ -173,7 +173,8 @@ def build_model(project):
                                           'code': {'path': directory, 'lines': None}})
             parent = identifier
         component_records.append({'id': f'file:{path}', 'kind': 'file', 'parent': parent,
-                                  'code': {'path': path, 'lines': None}})
+                                  'code': {'path': path, 'lines': None,
+                                           'url': code_url(project, path, source)}})
     return {'schema_version': 1, 'source': source, 'records': records, 'components': components}
 
 

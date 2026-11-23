@@ -1,6 +1,6 @@
 components:
   browser:
     title: Браузерная проверка
-    paths: [check_browser.py, requirements-browser.txt]
+    paths: [check_browser.py, check_map.py, requirements-browser.txt, phase0/check_browser.py]
     depends_on: []
     page: docs/components/browser.md

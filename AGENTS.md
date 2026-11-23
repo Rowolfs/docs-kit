@@ -3,15 +3,15 @@
 <!-- quokki:instructions:start -->
 ## Документация Quokki
 
-Движок закреплён на `v0.3.0-alpha.2`. Установщик создаёт структуру и заготовки,
+Движок закреплён на `v0.4.0-alpha.1`. Установщик создаёт структуру и заготовки,
 а объяснения пишет агент после чтения кода. Он не определяет зависимости
 между компонентами по именам файлов. Уточняй реестр `components.yaml` по коду.
 
 Для запуска модели из корня репозитория:
 
 ```bash
-bash <(wget -qO- https://raw.githubusercontent.com/Rowolfs/docs-kit/v0.3.0-alpha.2/install.sh) --model changed --base HEAD
-bash <(wget -qO- https://raw.githubusercontent.com/Rowolfs/docs-kit/v0.3.0-alpha.2/install.sh) --model show <component-id>
+bash <(wget -qO- https://raw.githubusercontent.com/Rowolfs/docs-kit/v0.4.0-alpha.1/install.sh) --model changed --base HEAD
+bash <(wget -qO- https://raw.githubusercontent.com/Rowolfs/docs-kit/v0.4.0-alpha.1/install.sh) --model show <component-id>
 ```
 
 После существенного изменения кода:

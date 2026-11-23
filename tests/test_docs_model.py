@@ -40,6 +40,7 @@ class ModelTests(unittest.TestCase):
         self.assertEqual(records['directory:api:src/nested']['parent'], 'directory:api:src')
         self.assertNotIn('SECRET_CONTENT_NOT_MODEL', json.dumps(result))
         self.assertEqual(model.code_url(self.root, 'src/api.py'), f"https://github.com/example/demo/blob/{result['source']['commit']}/src/api.py")
+        self.assertEqual(records['file:src/api.py']['code']['url'], model.code_url(self.root, 'src/api.py'))
 
     def test_globs_are_directory_aware(self):
         for path, glob, expected in [('src/api.py', 'src/**', True), ('src/api.py', 'src/**/*.py', True),
@@ -52,6 +53,15 @@ class ModelTests(unittest.TestCase):
             self.write(name, 'contents')
         self.assertEqual(model.list_files(self.root), ['.gitignore', 'components.yaml', 'src/api.py', 'src/nested/job.py', 'src/new.py'])
         self.assertIsNone(model.code_url(self.root, 'src/new.py'))
+        generated = model.build_model(self.root)
+        new = next(record for record in generated['components']['api'] if record['id'] == 'file:src/new.py')
+        self.assertIsNone(new['code']['url'])
+
+    def test_model_file_urls_require_a_github_origin(self):
+        self.run_git('remote', 'set-url', 'origin', 'https://example.invalid/private.git')
+        generated = model.build_model(self.root)
+        self.assertTrue(all(record['code']['url'] is None for record in generated['components']['api']
+                            if record['kind'] == 'file'))
 
     def test_changed_includes_deleted_and_untracked(self):
         self.write('src/api.py', 'changed')
@@ -70,6 +80,9 @@ class ModelTests(unittest.TestCase):
         project = self.root / 'demo'
         self.assertEqual(model.list_files(project), ['components.yaml', 'src/a.py'])
         self.assertIn('/demo/src/a.py', model.code_url(project, 'src/a.py'))
+        generated = model.build_model(project)
+        file_record = next(record for record in generated['components']['api'] if record['kind'] == 'file')
+        self.assertEqual(file_record['code']['url'], model.code_url(project, 'src/a.py'))
         self.assertEqual(model.source_metadata(project)['committed_paths'], ['components.yaml', 'src/a.py'])
         self.write('src/api.py', 'outside demo change')
         self.write('demo/src/a.py', 'inside demo change')

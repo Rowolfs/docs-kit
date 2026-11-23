@@ -10,8 +10,9 @@ Quokki — статическая документация для проекто
 приложения не нужен; для сборки используется Zensical **0.1.0**.
 
 Фазы 1–3 реализованы и опубликованы. Доступен экспериментальный релиз
-[v0.3.0-alpha.2](https://github.com/Rowolfs/docs-kit/releases/tag/v0.3.0-alpha.2).
+[v0.4.0-alpha.1](https://github.com/Rowolfs/docs-kit/releases/tag/v0.4.0-alpha.1).
 Модель файлов, карта кода и базовый установщик реализованы.
+Интерактивная карта на Cytoscape.js раскрывает компоненты, папки и файлы.
 Docs-check, журнал, статистика и окончательный шаблон ещё не реализованы.
 Эксперимент фазы 0 сохранён отдельно.
 
@@ -20,7 +21,7 @@ Docs-check, журнал, статистика и окончательный ш�
 Из корня Git-репозитория без конфликтующих файлов документации:
 
 ```bash
-bash <(wget -qO- https://raw.githubusercontent.com/Rowolfs/docs-kit/v0.3.0-alpha.2/install.sh)
+bash <(wget -qO- https://raw.githubusercontent.com/Rowolfs/docs-kit/v0.4.0-alpha.1/install.sh)
 ```
 
 Нужны Bash, Git и Python 3.11+ с venv; загрузка требует сети. Установщик
@@ -31,7 +32,7 @@ bash <(wget -qO- https://raw.githubusercontent.com/Rowolfs/docs-kit/v0.3.0-alpha
 
 ## Локальная сборка
 
-Требуется Python 3.13; первую установку и подготовку Mermaid выполняют с сетью.
+Требуется Python 3.13; первую установку и подготовку Mermaid и Cytoscape.js выполняют с сетью.
 
 ```bash
 python -m venv .venv
@@ -78,6 +79,7 @@ python -m venv /tmp/docs-kit-browser
 /tmp/docs-kit-browser/bin/python -m pip install -r demo/requirements-browser.txt
 /tmp/docs-kit-browser/bin/python -m playwright install chromium
 /tmp/docs-kit-browser/bin/python demo/check_browser.py
+/tmp/docs-kit-browser/bin/python demo/check_map.py
 ```
 
 Последняя команда ожидает запущенный локальный сервер demo. Можно передать
