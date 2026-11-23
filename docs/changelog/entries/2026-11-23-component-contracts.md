@@ -1,6 +1,6 @@
 ---
 date: 2026-11-23
-pr: null
+pr: 7
 components: [installer]
 c4_impact: none
 ---
@@ -40,4 +40,4 @@ c4_impact: none
 
 ## Ссылка на PR
 
-Добавляется после создания PR.
+[PR #7](https://github.com/Rowolfs/docs-kit/pull/7).
