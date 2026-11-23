@@ -10,7 +10,7 @@ Quokki — статическая документация для проекто
 приложения не нужен; для сборки используется Zensical **0.1.0**.
 
 Фазы 1–3 реализованы и опубликованы. Доступен экспериментальный релиз
-[v0.3.0-alpha.1](https://github.com/Rowolfs/docs-kit/releases/tag/v0.3.0-alpha.1).
+[v0.3.0-alpha.2](https://github.com/Rowolfs/docs-kit/releases/tag/v0.3.0-alpha.2).
 Модель файлов, карта кода и базовый установщик реализованы.
 Docs-check, журнал, статистика и окончательный шаблон ещё не реализованы.
 Эксперимент фазы 0 сохранён отдельно.
@@ -20,7 +20,7 @@ Docs-check, журнал, статистика и окончательный ш�
 Из корня Git-репозитория без конфликтующих файлов документации:
 
 ```bash
-bash <(wget -qO- https://raw.githubusercontent.com/Rowolfs/docs-kit/v0.3.0-alpha.1/install.sh)
+bash <(wget -qO- https://raw.githubusercontent.com/Rowolfs/docs-kit/v0.3.0-alpha.2/install.sh)
 ```
 
 Нужны Bash, Git и Python 3.11+ с venv; загрузка требует сети. Установщик

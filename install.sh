@@ -2,7 +2,7 @@
 # Run from the root of the project receiving Quokki documentation.
 set -euo pipefail
 
-QUOKKI_VERSION='v0.3.0-alpha.1'
+QUOKKI_VERSION='v0.3.0-alpha.2'
 if [[ "${1:-}" == '--help' ]]; then
   printf '%s\n' 'Quokki: run in a Git repository root.' \
     'No arguments: create documentation scaffolding and a generated model.' \

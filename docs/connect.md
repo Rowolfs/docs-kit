@@ -10,12 +10,16 @@ status: implemented
 Из корня Git-репозитория:
 
 ```bash
-bash <(wget -qO- https://raw.githubusercontent.com/Rowolfs/docs-kit/v0.3.0-alpha.1/install.sh)
+bash <(wget -qO- https://raw.githubusercontent.com/Rowolfs/docs-kit/v0.3.0-alpha.2/install.sh)
 ```
 
 Требуются Bash, Git и Python 3.11+ с venv. Установщик скачивает точную версию
 движка и PyYAML во временное окружение; не добавляет движок в исходники проекта.
 Он создаёт реестр, конфиг, заготовки страниц и workflow, дополняет `AGENTS.md`.
+Заготовки задают вопросы о назначении и границах, сценарии и проверенном
+примере, ошибках, публичном контракте и ограничениях. Для UI есть условные
+вопросы о состояниях и доступности. Агент заменяет вопросы объяснением по коду
+и удаляет неприменимые разделы.
 Если существующий файл конфликтует с заготовкой, установка завершается без
 перезаписи. Повторный запуск установленного проекта сохраняет написанный текст.
 
@@ -28,8 +32,8 @@ bash <(wget -qO- https://raw.githubusercontent.com/Rowolfs/docs-kit/v0.3.0-alpha
 Команды модели доступны через тот же закреплённый загрузчик:
 
 ```bash
-bash <(wget -qO- https://raw.githubusercontent.com/Rowolfs/docs-kit/v0.3.0-alpha.1/install.sh) --model changed --base HEAD
-bash <(wget -qO- https://raw.githubusercontent.com/Rowolfs/docs-kit/v0.3.0-alpha.1/install.sh) --model show <component-id>
+bash <(wget -qO- https://raw.githubusercontent.com/Rowolfs/docs-kit/v0.3.0-alpha.2/install.sh) --model changed --base HEAD
+bash <(wget -qO- https://raw.githubusercontent.com/Rowolfs/docs-kit/v0.3.0-alpha.2/install.sh) --model show <component-id>
 ```
 
 Каждый вызов требует сети. `HEAD` показывает незакоммиченные изменения; для PR
@@ -94,12 +98,12 @@ concurrency:
 
 jobs:
   docs:
-    uses: Rowolfs/docs-kit/.github/workflows/build.yml@v0.3.0-alpha.1
+    uses: Rowolfs/docs-kit/.github/workflows/build.yml@v0.3.0-alpha.2
     with:
       deploy: ${{ github.event_name != 'pull_request' && github.ref == 'refs/heads/main' }}
 ```
 
-Это экспериментальный prerelease `v0.3.0-alpha.1`, не стабильный `v1`. Для максимальной
+Это экспериментальный prerelease `v0.3.0-alpha.2`, не стабильный `v1`. Для максимальной
 фиксации вместо тега можно указать полный SHA. Существующие релизные теги
 не передвигаются; изменение движка публикуется новой версией. Semver до 1.0
 не означает стабильность всего будущего интерфейса.
