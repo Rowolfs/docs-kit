@@ -12,7 +12,7 @@ import sys
 
 import yaml
 
-VERSION = "v0.3.0-alpha.2"
+VERSION = "v0.4.0-alpha.1"
 START = "<!-- quokki:instructions:start -->"
 END = "<!-- quokki:instructions:end -->"
 MANAGED = {"components.yaml", "docs-kit.toml", "AGENTS.md", ".gitignore"}

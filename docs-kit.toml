@@ -7,6 +7,7 @@ nav = [
   { "Сборка" = "components/build.md" },
   { "Модель" = "components/model.md" },
   { "Установка" = "components/installer.md" },
+  { "Карта: как пользоваться" = "project-map.md" },
   { "Подключение" = "connect.md" },
   { "Практики документации" = "documentation-standard.md" },
   { "Исследование UX" = "research/documentation-ux.md" },

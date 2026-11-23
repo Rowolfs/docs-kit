@@ -11,7 +11,7 @@ verified_commit: e02b1a7abc80b61eb5c7ea946608502574cde042
 ## Кратко
 
 `check_browser.py` открывает собранный сайт в Chromium через Playwright и
-проверяет уровни чтения, переходы, поиск, темы и адаптивность. Это код demo,
+проверяет уровни чтения, переходы, поиск, темы и адаптивность. Отдельный `check_map.py` проверяет навигацию интерактивной карты. Это код demo,
 который попадает в [генерируемую карту](../_generated/code-map.md).
 
 </div>
@@ -33,6 +33,8 @@ verified_commit: e02b1a7abc80b61eb5c7ea946608502574cde042
 
 Зависимость Playwright закреплена в `requirements-browser.txt`. Артефакты
 сохраняются в `build/phase2`, не коммитятся и доступны в CI как browser-evidence.
-Исходник: [check_browser.py](file:check_browser.py).
+Исходники: [check_browser.py](file:check_browser.py),
+`check_map.py`. В реестр также включена сохранённая проверка
+фазы 0: она даёт реальную вложенную папку для проверки раскрытия карты.
 
 </div>

@@ -1,13 +1,16 @@
 """Build a thin project's documentation using this checkout of docs-kit."""
 
 import argparse
-from hashlib import sha256
+import base64
+from hashlib import sha256, sha512
+import io
 import json
 from pathlib import Path
 import shutil
 import subprocess
 import sys
 import tempfile
+import tarfile
 import tomllib
 from urllib.parse import urlparse
 from urllib.request import urlopen
@@ -20,6 +23,14 @@ except ImportError:  # Direct invocation: python scripts/build_site.py
 ENGINE = Path(__file__).resolve().parents[1]
 MERMAID_URL = "https://unpkg.com/mermaid@12.3.0/dist/mermaid.min.js"
 MERMAID_SHA256 = "336df803d87a38b70a01e736e666c8f7601d2ce42f5e47c8fafe5d721074b9a3"
+CYTOSCAPE_VERSION = "3.35.0"
+CYTOSCAPE_URL = "https://registry.npmjs.org/cytoscape/-/cytoscape-3.35.0.tgz"
+CYTOSCAPE_INTEGRITY = "sMvBIXiGMnhkCaWz2R06FwF/27MNlS+Tqvi17foO9UhnUg3XGZccKjxsvEqQFAQYMSSZmN5SxYzUYlQ0DOJJ3g=="
+# Published npm dist.integrity and independently pinned extracted browser assets.
+CYTOSCAPE_FILES = {
+    "cytoscape-3.35.0.min.js": ("package/dist/cytoscape.min.js", "71fa9ebec21a7ca2c40cff6aacc30d1f6464e363662ad4b2c197e1adc770cd94"),
+    "cytoscape-3.35.0.LICENSE.txt": ("package/LICENSE", "eb319c6e6f233607f71e8e2f450391751883cfc0eeb3ca7ef574c13d1d9c2203"),
+}
 MANIFEST = "_docs_kit/build.json"
 
 
@@ -76,6 +87,36 @@ def mermaid_asset(cache):
     return target
 
 
+def cytoscape_assets(cache):
+    """Verify the pinned npm archive; publish only its JS and required MIT notice."""
+    targets = {name: cache / name for name in CYTOSCAPE_FILES}
+    if all(path.is_file() and sha256(path.read_bytes()).hexdigest() == CYTOSCAPE_FILES[name][1]
+           for name, path in targets.items()):
+        return list(targets.values())
+    with urlopen(CYTOSCAPE_URL, timeout=60) as response:
+        archive = response.read()
+    if base64.b64encode(sha512(archive).digest()).decode('ascii') != CYTOSCAPE_INTEGRITY:
+        raise ValueError("Cytoscape archive checksum mismatch")
+    verified = {}
+    try:
+        with tarfile.open(fileobj=io.BytesIO(archive), mode='r:gz') as package:
+            for name, (member_name, digest) in CYTOSCAPE_FILES.items():
+                member = package.getmember(member_name)
+                if not member.isfile():
+                    raise ValueError("Cytoscape asset must be a regular file")
+                data = package.extractfile(member).read()
+                if sha256(data).hexdigest() != digest:
+                    raise ValueError("Cytoscape asset checksum mismatch")
+                verified[name] = data
+    except (tarfile.TarError, KeyError) as error:
+        raise ValueError("Invalid Cytoscape package") from error
+    # Validate every member before replacing even one cached file. Never extract paths.
+    cache.mkdir(parents=True, exist_ok=True)
+    for name, data in verified.items():
+        targets[name].write_bytes(data)
+    return list(targets.values())
+
+
 def revision(directory):
     result = subprocess.run(
         ["git", "-C", str(directory), "rev-parse", "HEAD"],
@@ -84,13 +125,17 @@ def revision(directory):
     return result.stdout.strip() if result.returncode == 0 else None
 
 
-def stage_project(project, stage, site, site_url, asset):
+def stage_project(project, stage, site, site_url, asset, map_assets=None):
     shutil.copytree(project / "docs", stage / "docs")
     shutil.copytree(ENGINE / "theme/assets", stage / "docs/_docs_kit")
     shutil.copy2(asset, stage / "docs/_docs_kit/mermaid-12.3.0.min.js")
     shutil.copytree(ENGINE / "theme/overrides", stage / "overrides")
     model_context = None
     if (project / "components.yaml").is_file():
+        if map_assets is None:
+            raise ValueError("Component maps require verified Cytoscape assets")
+        for map_asset in map_assets:
+            shutil.copy2(map_asset, stage / "docs/_docs_kit" / map_asset.name)
         try:
             from .docs_model import generate, records_for
             from .model_site import render_map
@@ -131,6 +176,7 @@ def stage_project(project, stage, site, site_url, asset):
         "extra_css": [f"_docs_kit/{name}?v={asset_version}"
                       for name in ("levels.css", "site.css")],
         "extra_javascript": [f"_docs_kit/levels.js?v={asset_version}"],
+        "extra": {"quokki_map": bool(model_context)},
         "markdown_extensions": [
             "md_in_html", "attr_list", "tables", {"toc": {"permalink": True}},
             {"pymdownx.superfences": {"custom_fences": [{
@@ -139,6 +185,9 @@ def stage_project(project, stage, site, site_url, asset):
             }]}},
         ],
     }
+    if model_context:
+        config["extra_css"].append(f"_docs_kit/project-map.css?v={asset_version}")
+        config["extra_javascript"].append(f"_docs_kit/project-map.js?v={asset_version}")
     if "nav" in site:
         config["nav"] = list(site["nav"])
         if model_context:
@@ -166,9 +215,10 @@ def build(project, output, site_url, cache):
     if output.exists() and not (output / MANIFEST).is_file():
         raise ValueError("Refusing to replace an output directory not created by docs-kit")
     asset = mermaid_asset(cache)
+    map_assets = cytoscape_assets(cache) if (project / "components.yaml").is_file() else None
     with tempfile.TemporaryDirectory(prefix="docs-kit-") as temp:
         stage = Path(temp)
-        model_context = stage_project(project, stage, site, site_url, asset)
+        model_context = stage_project(project, stage, site, site_url, asset, map_assets)
         subprocess.run(
             [sys.executable, "-m", "zensical", "build", "--strict", "-f", str(stage / "mkdocs.yml")],
             cwd=stage, check=True,
