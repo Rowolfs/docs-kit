@@ -2,7 +2,7 @@
 id: browser
 type: component
 status: implemented
-verified_commit: e02b1a7abc80b61eb5c7ea946608502574cde042
+verified_commit: 0e580d7308017d1d00db8d1a63e30c8e502ce1a3
 ---
 # Браузерная проверка
 
@@ -34,7 +34,7 @@ verified_commit: e02b1a7abc80b61eb5c7ea946608502574cde042
 Зависимость Playwright закреплена в `requirements-browser.txt`. Артефакты
 сохраняются в `build/phase2`, не коммитятся и доступны в CI как browser-evidence.
 Исходники: [check_browser.py](file:check_browser.py),
-`check_map.py`. В реестр также включена сохранённая проверка
+[check_map.py](file:check_map.py). В реестр также включена сохранённая проверка
 фазы 0: она даёт реальную вложенную папку для проверки раскрытия карты.
 
 </div>

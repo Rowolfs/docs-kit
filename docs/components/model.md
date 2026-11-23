@@ -2,7 +2,7 @@
 id: model
 type: component
 status: implemented
-verified_commit: d232825ce1bdb13e2a486b3ee3dca7d057cd7915
+verified_commit: 0e580d7308017d1d00db8d1a63e30c8e502ce1a3
 ---
 # Модель проекта
 

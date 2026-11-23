@@ -2,7 +2,7 @@
 id: installer
 type: component
 status: implemented
-verified_commit: 76c1fce2d7c19330c92783e0b3b74174b629593d
+verified_commit: 0e580d7308017d1d00db8d1a63e30c8e502ce1a3
 ---
 # Установка в репозиторий
 

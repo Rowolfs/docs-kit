@@ -2,7 +2,7 @@
 id: docs-kit
 type: project
 status: implemented
-verified_commit: e02b1a7abc80b61eb5c7ea946608502574cde042
+verified_commit: 0e580d7308017d1d00db8d1a63e30c8e502ce1a3
 ---
 <p class="docs-eyebrow">Документация, которой можно доверять</p>
 
